@@ -1,65 +1,55 @@
 <template>
   <div id="app">
-    <input v-model="searchInput" type="text" />
-    <button @click="search">Cerca</button>
-    <h2>Films</h2>
-    <ul>
-      <li v-for="movie in movies" :key="movie.id">
-        <strong>Titolo:</strong> {{ movie.title }} <br />
-        <strong>Titolo originale:</strong> {{ movie.original_title }} <br />
-        <strong>Lingua:</strong>
-        <img
-          :src="
-            require(`@/assets/Flags/${flagsXlang[movie.original_language]}`)
-          "
-          alt="img"
-        />
-        {{ movie.original_language }} <br />
-        <strong>Voto:</strong> {{ movie.vote_average }} <br />
-      </li>
-    </ul>
-    <hr />
-    <h2>Serie TV</h2>
-    <ul>
-      <li v-for="serie in series" :key="serie.id">
-        <strong>Titolo:</strong> {{ serie.name }} <br />
-        <strong>Titolo originale:</strong> {{ serie.original_name }} <br />
-        <strong>Lingua:</strong>
-        <!-- <img
-          :src="require(`@/assets/` + flagsXlang[serie.original_language])"
-          alt="img"
-        /> -->
-        {{ serie.original_language }} <br />
-        <strong>Voto:</strong> {{ serie.vote_average }} <br />
-      </li>
-    </ul>
+    <header>
+      <nav>
+        <span>BOOLFLIX</span>
+        <SearchBar @search="search"></SearchBar>
+      </nav>
+    </header>
+    <div class="container">
+      <h2 v-if="movies.length > 0">Films</h2>
+      <div class="row row-cols-2 row-cols-md-3">
+        <Card
+          v-for="movie in movies"
+          :key="movie.id"
+          :title="movie.title"
+          :originalTitle="movie.original_title"
+          :originalLanguage="movie.original_language"
+          :rank="movie.vote_average"
+          :posterPath="movie.poster_path"
+          :overview="movie.overview"
+        ></Card>
+      </div>
+      <h2 v-if="series.length > 0">Serie TV</h2>
+      <div class="row row-cols-2 row-cols-md-3">
+        <Card
+          v-for="serie in series"
+          :key="serie.id"
+          :title="serie.name"
+          :originalTitle="serie.original_name"
+          :originalLanguage="serie.original_language"
+          :rank="serie.vote_average"
+          :posterPath="serie.poster_path"
+          :overview="serie.overview"
+        ></Card>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import SearchBar from "./components/SearchBar.vue";
+import Card from "./components/Card.vue";
 export default {
   name: "App",
-  components: {},
+  components: { SearchBar, Card },
   data() {
     return {
       apiUrl: "https://api.themoviedb.org/3",
       apiKey: "41150d102d7f7cd4fe50876e84547deb",
       movies: [],
       series: [],
-      searchInput: "",
-      flagsXlang: {
-        en: "en.png",
-        it: "it.png",
-        es: "es.png",
-        pt: "pt.png",
-        de: "de.png",
-        ja: "ja.png",
-        fr: "fr.png",
-        ru: "ru.png",
-        tr: "tr.png",
-        hi: "hi.png",
-      },
     };
   },
   methods: {
@@ -76,46 +66,15 @@ export default {
           this[dataKey] = resp.data.results;
         });
     },
-    search() {
-      this.searchQuery("/search/movie", this.searchInput, "movies");
-      this.searchQuery("/search/tv", this.searchInput, "series");
+    // la funzione search riceve come argomento i dati mandati dall'emit, cioè l'input
+    search(searchInput) {
+      this.searchQuery("/search/movie", searchInput, "movies");
+      this.searchQuery("/search/tv", searchInput, "series");
     },
-  },
-  mounted() {
-    // Ricerca tra i film
-    // this.searchQuery("/search/movie", "ciao", "movies");
-    // Ricerca tra serie tv
-    // this.searchQuery("/search/tv", "ciao", "series");
-    // --------------------------------------------------
-    // axios
-    //   .get(this.apiUrl + "/search/movie", {
-    //     params: {
-    //       api_key: this.apiKey,
-    //       query: "casa",
-    //     },
-    //   })
-    //   .then((resp) => {
-    //     this.movies = resp.data.results;
-    //   });
   },
 };
 </script>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-  li {
-    border: 1px solid black;
-    margin-bottom: 10px;
-    padding: 10px;
-    img {
-      width: 35px;
-    }
-  }
-}
+@import "@/styles/app";
 </style>
